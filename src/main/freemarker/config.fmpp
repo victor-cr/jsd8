@@ -1,0 +1,13 @@
+sources: "main.js.ftl",
+outputFile: "${project.js.outputDirectory}/${project.build.finalName}.${project.build.revision}-min.js",
+sourceEncoding: "${project.build.sourceEncoding}",
+outputEncoding: "${project.build.sourceEncoding}",
+data: {
+    license: "MIT.LICENSE",
+    body: "/@compiled/${project.build.finalName}.${project.build.revision}-body.temp.js",
+    version: "${project.version}",
+    revision: "${project.build.revision}"
+},
+freemarkerLinks: {
+    compiled: "${project.js.outputDirectory}"
+}
