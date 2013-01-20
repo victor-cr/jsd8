@@ -110,36 +110,46 @@ function isNumeric(value) {
 }
 
 /**
- * Returns milliseconds of an argument value or current time if argument undefined or <code>null</code>. If
- * conversion is not possible exception will be thrown.
  *
- * @param {(number|string|Date|Instant)} instant milliseconds, {@link Instant} or {@link Date} object.
- * @return {number} milliseconds of passed given object
- * @throws {Error} if conversion to milliseconds is impossible.
+ * @param {number} value
+ * @return {number}
  */
-function getMillis(instant) {
-    if (isNotExist(instant)) {
-        return goog.now();
-    }
+function trunc(value) {
+    return value > 0 ? Math.floor(value) : Math.ceil(value);
 
-    if (goog.isNumber(instant)) {
-        return instant;
-    }
-
-    if (instant instanceof Date) {
-        return instant.getTime();
-    }
-
-    if (instant instanceof Instant) {
-        return instant.toMillis();
-    }
-
-    if (goog.isString(instant) && /^[\-\+]?\d*\.?\d+$/.test(instant)) {
-        return parseInt(instant, 10);
-    }
-
-    throw new Error("Cannot be converted into number of milliseconds");
 }
+
+///**
+// * Returns milliseconds of an argument value or current time if argument undefined or <code>null</code>. If
+// * conversion is not possible exception will be thrown.
+// *
+// * @param {(number|string|Date|Instant)} instant milliseconds, {@link Instant} or {@link Date} object.
+// * @return {number} milliseconds of passed given object
+// * @throws {Error} if conversion to milliseconds is impossible.
+// */
+//function getMillis(instant) {
+//    if (isNotExist(instant)) {
+//        return goog.now();
+//    }
+//
+//    if (goog.isNumber(instant)) {
+//        return instant;
+//    }
+//
+//    if (instant instanceof Date) {
+//        return instant.getTime();
+//    }
+//
+//    if (instant instanceof Instant) {
+//        return instant.toMillis();
+//    }
+//
+//    if (goog.isString(instant) && /^[\-\+]?\d*\.?\d+$/.test(instant)) {
+//        return parseInt(instant, 10);
+//    }
+//
+//    throw new Error("Cannot be converted into number of milliseconds");
+//}
 
 var jsd8 = getOrCreateObject(window, "jsd8");
 

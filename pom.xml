@@ -8,7 +8,7 @@
     <version>2.0</version>
     <name>Javascript date/time manipulation library</name>
 
-    <url>http://code.google.com/p/js-date/</url>
+    <url>https://github.com/victor-cr/jsd8</url>
 
     <dependencies>
         <dependency>
@@ -16,22 +16,11 @@
             <artifactId>joda-time</artifactId>
             <version>2.1</version>
         </dependency>
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-            <version>2.16.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.fmpp</groupId>
-            <artifactId>fmpp</artifactId>
-            <version>0.9.14</version>
-        </dependency>
     </dependencies>
 
     <scm>
-        <connection>scm:svn:https://js-date.googlecode.com/svn/trunk</connection>
-        <url>https://js-date.googlecode.com/svn/trunk</url>
+        <connection>scm:git:https://github.com/victor-cr/jsd8</connection>
+        <url>https://github.com/victor-cr/jsd8</url>
     </scm>
 
     <developers>
@@ -109,9 +98,6 @@
                     <getRevisionOnlyOnce>true</getRevisionOnlyOnce>
                     <buildNumberPropertyName>project.build.revision</buildNumberPropertyName>
                     <revisionOnScmFailure>undefined</revisionOnScmFailure>
-                    <providerImplementations>
-                        <svn>javasvn</svn>
-                    </providerImplementations>
                 </configuration>
             </plugin>
             <plugin>
@@ -167,6 +153,14 @@
             </plugin>
             <plugin>
                 <groupId>com.github.jlgrock.javascript-framework</groupId>
+                <artifactId>jsdependency-maven-plugin</artifactId>
+                <version>${javascript.plugin.version}</version>
+                <configuration>
+                    <skipGoogleExtraction>true</skipGoogleExtraction>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.jlgrock.javascript-framework</groupId>
                 <artifactId>jspreprocessor-maven-plugin</artifactId>
                 <version>${javascript.plugin.version}</version>
                 <configuration>
@@ -180,9 +174,9 @@
                 <version>${javascript.plugin.version}</version>
                 <configuration>
                     <compileLevel>ADVANCED_OPTIMIZATIONS</compileLevel>
-                    <compiledFilename>
-                        ${project.build.finalName}.${project.build.revision}-body.temp.js
-                    </compiledFilename>
+                    <compiledFilename>${project.build.finalName}-body.temp.js</compiledFilename>
+                    <generateSourceMap>false</generateSourceMap>
+                    <closureLibraryLocation>src/main/vendor/google-closure</closureLibraryLocation>
                 </configuration>
             </plugin>
             <plugin>
@@ -190,10 +184,12 @@
                 <artifactId>closure-testing-maven-plugin</artifactId>
                 <version>${javascript.plugin.version}</version>
                 <configuration>
-                    <skipTests>true</skipTests>
+                    <closureLibraryLocation>src/main/vendor/google-closure</closureLibraryLocation>
+                    <testSourceDirectory>src/test/javascript/unit</testSourceDirectory>
+                    <skipTests>false</skipTests>
                 </configuration>
             </plugin>
-            <!-- Freemarker pre-processor plugin. Needed to wrap content of the generated minified file -->
+            <!-- Freemarker pre-processor plugin. Needed to wrap content of the generated minimized file -->
             <plugin>
                 <groupId>com.googlecode.fmpp-maven-plugin</groupId>
                 <artifactId>fmpp-maven-plugin</artifactId>
@@ -217,15 +213,18 @@
                 <groupId>com.github.searls</groupId>
                 <artifactId>jasmine-maven-plugin</artifactId>
                 <version>${jasmine.plugin.version}</version>
+                <extensions>true</extensions>
                 <configuration>
                     <jsSrcDir>${project.js.outputDirectory}</jsSrcDir>
-                    <jsTestSrcDir>src/test/javascript</jsTestSrcDir>
+                    <jsTestSrcDir>src/test/javascript/integration</jsTestSrcDir>
                     <sourceExcludes>
                         <sourceExclude>*.temp.js</sourceExclude>
                     </sourceExcludes>
+                    <skipTests>true</skipTests>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>jasmine-test</id>
                         <goals>
                             <goal>generateManualRunner</goal>
                             <goal>resources</goal>

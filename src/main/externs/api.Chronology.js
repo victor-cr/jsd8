@@ -1,6 +1,5 @@
 /**
  * Chronology API
- * @externs
  * @interface
  */
 var Chronology = function () {

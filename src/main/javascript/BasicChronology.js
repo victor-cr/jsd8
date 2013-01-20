@@ -1,4 +1,4 @@
-goog.provide("jsd8.BaseChronology");
+goog.provide("jsd8.BasicChronology");
 
 goog.require("jsd8.Chronology");
 
@@ -13,127 +13,100 @@ goog.require("jsd8.Chronology");
  * @public
  * @expose
  */
-jsd8.BaseChronology = function () {
+jsd8.BasicChronology = function () {
 };
 
-goog.inherits(jsd8.BaseChronology, jsd8.Chronology);
+goog.inherits(jsd8.BasicChronology, jsd8.Chronology);
 
 
 /**
- *
  * @type {number}
  * @const
- * @private
  */
-jsd8.BaseChronology.MILLIS_PER_SECOND = 1000;
+var MILLIS_PER_SECOND = 1000;
 
 /**
- *
  * @type {number}
  * @const
- * @private
  */
-jsd8.BaseChronology.SECONDS_PER_MINUTE = 60;
+var SECONDS_PER_MINUTE = 60;
 
 /**
- *
  * @type {number}
  * @const
- * @private
  */
-jsd8.BaseChronology.MINUTES_PER_HOUR = 60;
+var MINUTES_PER_HOUR = 60;
 
 /**
- *
  * @type {number}
  * @const
- * @private
  */
-jsd8.BaseChronology.HOURS_PER_DAY = 24;
+var HOURS_PER_DAY = 24;
 
 /**
- *
  * @type {number}
  * @const
- * @private
  */
-jsd8.BaseChronology.DAYS_0000_TO_1970 = 719527;
+var MILLIS_PER_MINUTE = MILLIS_PER_SECOND * SECONDS_PER_MINUTE;
 
 /**
- *
  * @type {number}
  * @const
- * @private
  */
-jsd8.BaseChronology.MILLIS_PER_MINUTE = jsd8.BaseChronology.MILLIS_PER_SECOND * jsd8.BaseChronology.SECONDS_PER_MINUTE;
+var MILLIS_PER_HOUR = MILLIS_PER_MINUTE * MINUTES_PER_HOUR;
 
 /**
- *
  * @type {number}
  * @const
- * @private
  */
-jsd8.BaseChronology.MILLIS_PER_HOUR = jsd8.BaseChronology.MILLIS_PER_MINUTE * jsd8.BaseChronology.MINUTES_PER_HOUR;
+var MILLIS_PER_DAY = MILLIS_PER_HOUR * HOURS_PER_DAY;
 
 /**
- *
  * @type {number}
  * @const
- * @private
  */
-jsd8.BaseChronology.MILLIS_PER_DAY = jsd8.BaseChronology.MILLIS_PER_HOUR * jsd8.BaseChronology.HOURS_PER_DAY;
+var MILLIS_PER_YEAR = trunc(365.2425 * MILLIS_PER_DAY);
 
 /**
- *
  * @type {number}
  * @const
- * @private
  */
-jsd8.BaseChronology.MILLIS_PER_YEAR = Math.floor(365.2425 * jsd8.BaseChronology.MILLIS_PER_DAY);
-
-/**
- *
- * @type {number}
- * @const
- * @private
- */
-jsd8.BaseChronology.MILLIS_PER_MONTH = Math.floor(365.2425 * jsd8.BaseChronology.MILLIS_PER_DAY / 12);
+var MILLIS_PER_MONTH = trunc(365.2425 * MILLIS_PER_DAY / 12);
 
 /**
  *
  * @param {number} instant
  * @return {number}
- * @protected
+ * @public
  * @expose
  */
-jsd8.BaseChronology.prototype.getYear = function (instant) {
+jsd8.BasicChronology.prototype.getYear = function (instant) {
     var unitMillis = this.getAverageMillisPerYearDividedByTwo();
-    var i2 = Math.floor(instant / 2) + this.getApproxMillisAtEpochDividedByTwo();
+    var i2 = trunc(instant / 2) + this.getApproxMillisAtEpochDividedByTwo();
 
     if (i2 < 0) {
         i2 = i2 - unitMillis + 1;
     }
 
-    var year = Math.floor(i2 / unitMillis);
+    var year = trunc(i2 / unitMillis);
 
     var yearStart = this.getYearMillis(year);
     var diff = instant - yearStart;
 
     if (diff < 0) {
-        year--;
-    } else if (diff >= jsd8.Chronology.MILLIS_PER_DAY * 365) {
-        // One year may need to be added to fix estimate.
-        var oneYear;
+        return year - 1;
+    }
+
+    var oneYear = MILLIS_PER_DAY * 365;
+
+    if (diff >= oneYear) {
         if (this.isLeapYear(year)) {
-            oneYear = jsd8.Chronology.MILLIS_PER_DAY * 366;
-        } else {
-            oneYear = jsd8.Chronology.MILLIS_PER_DAY * 365;
+            oneYear += MILLIS_PER_DAY;
         }
 
         yearStart += oneYear;
 
         if (yearStart <= instant) {
-            // Didn't go too far, so actually add one year.
             year++;
         }
     }
@@ -144,61 +117,106 @@ jsd8.BaseChronology.prototype.getYear = function (instant) {
 /**
  *
  * @return {number}
- * @protected
+ * @public
  * @expose
  */
-jsd8.BaseChronology.prototype.getAverageMillisPerYear = function () {
-    return jsd8.Chronology.MILLIS_PER_YEAR;
+jsd8.BasicChronology.prototype.getAverageMillisPerYear = function () {
+    return MILLIS_PER_YEAR;
 };
 
 /**
  *
  * @return {number}
- * @protected
+ * @public
  * @expose
  */
-jsd8.BaseChronology.prototype.getAverageMillisPerYearDividedByTwo = function () {
-    return jsd8.Chronology.MILLIS_PER_YEAR / 2;
+jsd8.BasicChronology.prototype.getAverageMillisPerYearDividedByTwo = function () {
+    return trunc(this.getAverageMillisPerYear() / 2);
 };
 
 /**
  *
  * @return {number}
- * @protected
+ * @public
  * @expose
  */
-jsd8.BaseChronology.prototype.getAverageMillisPerMonth = function () {
-    return jsd8.Chronology.MILLIS_PER_MONTH;
+jsd8.BasicChronology.prototype.getAverageMillisPerMonth = function () {
+    return MILLIS_PER_MONTH;
 };
 
 /**
  *
  * @return {number}
- * @protected
+ * @public
  * @expose
  */
-jsd8.BaseChronology.prototype.getApproxMillisAtEpochDividedByTwo = function () {
-    return (1970 * jsd8.Chronology.MILLIS_PER_YEAR) / 2;
+jsd8.BasicChronology.prototype.getApproxMillisAtEpochDividedByTwo = function () {
+    return trunc(1970 * this.getAverageMillisPerYearDividedByTwo());
+};
+
+/**
+ *
+ * @param {number} year
+ * @param {number} month
+ * @param {number} dayOfMonth
+ * @return {number}
+ * @public
+ * @expose
+ */
+jsd8.BasicChronology.prototype.getYearMonthDayMillis = function(year, month, dayOfMonth) {
+    var millis = this.getYearMillis(year) + this.getTotalMillisByYearMonth(year, month);
+
+    return millis + (dayOfMonth - 1) * MILLIS_PER_DAY;
+};
+
+/**
+ * @param {number} instant
+ * @return {number}
+ * @public
+ * @expose
+ */
+jsd8.BasicChronology.prototype.getMillisOfDay = function (instant) {
+    if (instant >= 0) {
+        return (instant % MILLIS_PER_DAY);
+    } else {
+        return (MILLIS_PER_DAY - 1) + ((instant + 1) % MILLIS_PER_DAY);
+    }
+};
+
+/**
+ * @param {number} instant
+ * @param {number} year
+ * @return {number}
+ * @public
+ * @expose
+ */
+jsd8.BasicChronology.prototype.getDayOfYear = function (instant, year) {
+    var yearStart = this.getYearMillis(year);
+
+    return trunc((instant - yearStart) / MILLIS_PER_DAY) + 1;
 };
 
 /**
  * @param {number} year
  * @return {boolean}
- * @protected
+ * @public
  * @expose
  */
-jsd8.BaseChronology.prototype.isLeapYear = function (year) {
-    return (year & 3) === 0 && (year % 100 !== 0 || year % 400 === 0);
-};
+jsd8.BasicChronology.prototype.isLeapYear = goog.abstractMethod;
+
+/**
+ * @param {number} year
+ * @param {number} month
+ * @return {number}
+ * @public
+ * @expose
+ */
+jsd8.BasicChronology.prototype.getTotalMillisByYearMonth = goog.abstractMethod;
 
 /**
  * @param {number} year
  * @return {number}
- * @protected
+ * @public
  * @expose
  */
-jsd8.BaseChronology.prototype.getYearMillis = function (year) {
-    var leapDays = Math.floor(year / 4) - Math.floor(year / 100) + Math.floor(year / 400);
-
-    return (year * 365 + leapDays - jsd8.Chronology.DAYS_0000_TO_1970) * jsd8.Chronology.MILLIS_PER_DAY;
-};
+jsd8.BasicChronology.prototype.getYearMillis = goog.abstractMethod;

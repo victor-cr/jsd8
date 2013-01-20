@@ -8,58 +8,29 @@ goog.require("jsd8");
  * @author Victor Polischuk
  * @constructor
  * @class Class description
- * @expose
- * @public
- * @extends {Class}
  * @implements {Chronology}
+ * @public
+ * @expose
  */
 jsd8.Chronology = function () {
 };
 
-goog.inherits(jsd8.Chronology, Class);
-registerClass(jsd8.Chronology, "Chronology");
-
-/**
- * @param {?Chronology} chronology
- * @static
- * @public
- */
-jsd8.Chronology.setDefault = function (chronology) {
-    /**
-     * @type {!jsd8.Chronology}
-     * @private
-     */
-    jsd8.Chronology.DEFAULT = chronology || jsd8.Chronology.getSystemDefault && jsd8.Chronology.getSystemDefault() || new jsd8.Chronology();
-};
-
-/**
- * @return {!Chronology}
- * @static
- * @public
- */
-jsd8.Chronology.getDefault = function () {
-    if (!jsd8.Chronology.DEFAULT) {
-        jsd8.Chronology.setDefault(null);
-    }
-
-    return jsd8.Chronology.DEFAULT;
-};
-
 /**
  *
  * @param {number} instant
- * @param {!Period} periodType
  * @return {number}
  * @public
+ * @expose
  */
-jsd8.Chronology.prototype.computePeriod = goog.abstractMethod;
+jsd8.Chronology.prototype.getYear = goog.abstractMethod;
 
 /**
  *
  * @param {number} instant
- * @param {!FieldType} fieldType
- * @param {?PartialInstant} context
- * @return {!PartialInstant}
+ * @param {number} year
+ * @return {number}
  * @public
+ * @expose
  */
-jsd8.Chronology.prototype.toPartialInstant = goog.abstractMethod;
+jsd8.Chronology.prototype.setYear = goog.abstractMethod;
+

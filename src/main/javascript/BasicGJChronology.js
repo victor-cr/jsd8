@@ -1,4 +1,4 @@
-goog.provide("jsd8.GregorianChronology");
+goog.provide("jsd8.BasicGJChronology");
 
 goog.require("jsd8.BasicChronology");
 
@@ -13,10 +13,42 @@ goog.require("jsd8.BasicChronology");
  * @public
  * @expose
  */
-jsd8.GregorianChronology = function () {
+jsd8.BasicGJChronology = function () {
 };
 
-goog.inherits(jsd8.GregorianChronology, jsd8.BasicChronology);
+goog.inherits(jsd8.BasicGJChronology, jsd8.BasicChronology);
+
+/**
+ *
+ * @type {!Array.<number>}
+ * @const
+ * @private
+ */
+var MIN_DAYS_PER_MONTH_ARRAY = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+
+/**
+ *
+ * @type {!Array.<number>}
+ * @const
+ * @private
+ */
+var MAX_DAYS_PER_MONTH_ARRAY = [ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+
+/**
+ *
+ * @type {!Array.<number>}
+ * @const
+ * @private
+ */
+var MIN_TOTAL_MILLIS_BY_MONTH_ARRAY = [ 0 ];
+
+/**
+ *
+ * @type {!Array.<number>}
+ * @const
+ * @private
+ */
+var MAX_TOTAL_MILLIS_BY_MONTH_ARRAY = [ 0 ];
 
 /**
  *
@@ -24,27 +56,58 @@ goog.inherits(jsd8.GregorianChronology, jsd8.BasicChronology);
  * @const
  * @private
  */
-jsd8.GregorianChronology.DAYS_0000_TO_1970 = 719527;
+var END_OF_FEB_DAYS = 31 + 28;
+
+(function () {
+    var minSum = 0;
+    var maxSum = 0;
+
+    for (var i = 0; i < 11; i++) {
+        minSum += MIN_DAYS_PER_MONTH_ARRAY[i] * MILLIS_PER_DAY;
+        maxSum += MAX_DAYS_PER_MONTH_ARRAY[i] * MILLIS_PER_DAY;
+
+        MIN_TOTAL_MILLIS_BY_MONTH_ARRAY[i + 1] = minSum;
+        MAX_TOTAL_MILLIS_BY_MONTH_ARRAY[i + 1] = maxSum;
+    }
+})();
 
 
 /**
- * @param {number} year
- * @return {boolean}
- * @public
- * @expose
- */
-jsd8.GregorianChronology.prototype.isLeapYear = function (year) {
-    return (year & 3) === 0 && (year % 100 !== 0 || year % 400 === 0);
-};
-
-/**
+ * @param {number} instant
  * @param {number} year
  * @return {number}
  * @public
  * @expose
  */
-jsd8.GregorianChronology.prototype.getYearMillis = function (year) {
-    var leapDays = Math.floor(year / 4) - Math.floor(year / 100) + Math.floor(year / 400);
+jsd8.BasicGJChronology.prototype.setYear = function (instant, year) {
+    var thisYear = this.getYear(instant);
+    var dayOfYear = this.getDayOfYear(instant, thisYear);
+    var millisOfDay = this.getMillisOfDay(instant);
 
-    return (year * 365 + leapDays - jsd8.GregorianChronology.DAYS_0000_TO_1970) * jsd8.BasicChronology.MILLIS_PER_DAY;
+    if (dayOfYear > END_OF_FEB_DAYS) {
+        if (this.isLeapYear(thisYear)) {
+            if (!this.isLeapYear(year)) {
+                dayOfYear--;
+            }
+        } else if (this.isLeapYear(year)) {
+            dayOfYear++;
+        }
+    }
+
+    return millisOfDay + this.getYearMonthDayMillis(year, 1, dayOfYear);
 };
+
+/**
+ * @param {number} year
+ * @param {number} month
+ * @return {number}
+ * @public
+ * @expose
+ */
+jsd8.BasicGJChronology.prototype.getTotalMillisByYearMonth = function (year, month) {
+    if (this.isLeapYear(year)) {
+        return MAX_TOTAL_MILLIS_BY_MONTH_ARRAY[month - 1];
+    } else {
+        return MIN_TOTAL_MILLIS_BY_MONTH_ARRAY[month - 1];
+    }
+}
